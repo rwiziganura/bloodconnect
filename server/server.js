@@ -26,19 +26,36 @@ process.on('unhandledRejection', (reason) => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration
+// CORS configuration - Allow production and development origins
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://bloodconnect.vercel.app',
+  'https://bloodconnect-frontend.vercel.app', // Add your actual Vercel URL
+  process.env.FRONTEND_URL, // Allow dynamic frontend URL from env
+].filter(Boolean); // Remove undefined values
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://bloodconnect.vercel.app'
-  ],
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('⚠️  Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type', 
-    'Authorization'
+    'Authorization',
+    'X-Requested-With',
+    'Accept'
   ],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
