@@ -184,13 +184,13 @@ export async function createRequest(req, res) {
       try {
         await pool.query(
           `INSERT INTO notifications (user_id, request_id, message, type, status, is_read)
-           VALUES (?, ?, ?, 'blood_request', 'unread', FALSE)`,
+           VALUES (?, ?, ?, 'both', 'unread', FALSE)`,
           [d.user_id, requestId, notifyMessage]
         );
       } catch {
         await pool.query(
           `INSERT INTO notifications (user_id, message, type, status)
-           VALUES (?, ?, 'blood_request', 'unread')`,
+           VALUES (?, ?, 'both', 'unread')`,
           [d.user_id, notifyMessage]
         );
       }
@@ -583,22 +583,12 @@ export async function respondToRequest(req, res) {
 
         await pool.query(
           `INSERT INTO notifications
-           (user_id, request_id, message,
-            type, status, is_read)
-           VALUES (?, ?, ?, 'both', 'sent', FALSE)`,
+           (user_id, request_id, message, type, status, is_read)
+           VALUES (?, ?, ?, 'both', 'unread', FALSE)`,
           [
             hospitalUserId,
             requestId,
-            `Donor ${name} accepted your blood request.
-             Blood type: ${bloodType}
-             Phone: ${phone}
-             Email: ${email}
-             Age: ${age} years
-             Weight: ${weight} kg
-             City: ${city}
-             Medical conditions: ${medical}
-             Please contact them to confirm 
-             donation location and time.`
+            `Donor ${name} accepted your blood request. Blood type: ${bloodType}, Phone: ${phone}, Email: ${email}, Age: ${age} years, Weight: ${weight} kg, City: ${city}, Medical conditions: ${medical}. Please contact them to confirm donation location and time.`
           ]
         );
         console.log('Hospital notified:', 

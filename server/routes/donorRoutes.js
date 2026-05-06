@@ -10,18 +10,52 @@ import {
 } from "../controllers/donorController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
 
-router.use(verifyToken, requireRole("donor"));
+// Protected donor routes - all require authentication and donor role
+router.get('/me/dashboard',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(getDonorDashboard)
+);
 
-router.get("/me/dashboard", getDonorDashboard);
-router.patch("/me/availability", updateDonorAvailability);
-router.get("/me/alerts", getDonorAlerts);
-router.get("/me/history", getDonorHistory);
-router.get("/profile/me", getDonorProfile);
-router.put("/profile/me", updateDonorProfile);
-router.put("/availability", toggleAvailability);
+router.get('/me/alerts',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(getDonorAlerts)
+);
+
+router.get('/me/history',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(getDonorHistory)
+);
+
+router.put('/me/availability',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(toggleAvailability)
+);
+
+router.patch('/me/availability',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(updateDonorAvailability)
+);
+
+router.get('/profile/me',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(getDonorProfile)
+);
+
+router.put('/profile/me',
+  verifyToken,
+  requireRole('donor'),
+  asyncHandler(updateDonorProfile)
+);
 
 // Donor routes error handler
 router.use((err, req, res, next) => {

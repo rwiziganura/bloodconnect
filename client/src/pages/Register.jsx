@@ -11,7 +11,7 @@ import {
   EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext.jsx";
-import axios from "axios";
+import api from "../services/api.js";
 
 const BLOOD = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -127,12 +127,13 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      const response = await axios.post("/api/auth/register", payload);
+      const response = await api.post("/api/auth/register", payload);
       const { user: newUser, token } = response.data;
       login(newUser, token);
       toast.success("Account created!");
       navigate(dashboardPath(newUser.role), { replace: true });
     } catch (err) {
+      console.error("Register error:", err);
       toast.error(err.response?.data?.error || "Could not register");
     } finally {
       setSubmitting(false);

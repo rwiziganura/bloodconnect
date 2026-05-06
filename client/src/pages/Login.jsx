@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../services/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await api.post('/api/auth/login', {
         email,
         password
       });
@@ -30,6 +30,7 @@ const Login = () => {
       else if (user.role === 'admin') 
         navigate('/admin/dashboard', { replace: true });
     } catch (err) {
+      console.error('Login error:', err);
       setError(
         err.response?.data?.error ||
         err.response?.data?.message ||

@@ -4,12 +4,13 @@ import {
   getPublicStats,
   getRecentRequestsPublic,
 } from "../controllers/publicController.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
 
-router.get("/donors", getPublicDonorsMap);
-router.get("/stats", getPublicStats);
-router.get("/recent-requests", getRecentRequestsPublic);
+router.get("/donors", asyncHandler(getPublicDonorsMap));
+router.get("/stats", asyncHandler(getPublicStats));
+router.get("/recent-requests", asyncHandler(getRecentRequestsPublic));
 
 // Public routes error handler
 router.use((err, req, res, next) => {

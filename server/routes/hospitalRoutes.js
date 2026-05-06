@@ -5,6 +5,7 @@ import {
 } from "../controllers/hospitalController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
 
@@ -12,13 +13,13 @@ router.get(
   "/me",
   verifyToken,
   requireRole(["hospital"]),
-  getHospitalProfile
+  asyncHandler(getHospitalProfile)
 );
 router.put(
   "/me",
   verifyToken,
   requireRole(["hospital"]),
-  updateHospitalProfile
+  asyncHandler(updateHospitalProfile)
 );
 
 // Hospital routes error handler

@@ -11,34 +11,35 @@ import {
 } from "../controllers/requestController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
 
 // Literal paths MUST come before /:id to avoid being swallowed by the param route
 
 // GET all open requests — any authenticated user
-router.get("/", verifyToken, getAllRequests);
+router.get("/", verifyToken, asyncHandler(getAllRequests));
 
 // GET hospital's own requests
-router.get("/hospital", verifyToken, requireRole(["hospital"]), getHospitalRequests);
+router.get("/hospital", verifyToken, requireRole(["hospital"]), asyncHandler(getHospitalRequests));
 
 // POST new request — hospital, donor, or admin
-router.post("/", verifyToken, requireRole(["hospital", "donor", "admin"]), createRequest);
+router.post("/", verifyToken, requireRole(["hospital", "donor", "admin"]), asyncHandler(createRequest));
 
 // GET donor responses for a specific request (hospital only)
-router.get("/:id/responses", verifyToken, requireRole(["hospital"]), getRequestDonorResponses);
+router.get("/:id/responses", verifyToken, requireRole(["hospital"]), asyncHandler(getRequestDonorResponses));
 
 // GET accepted donors for a request (hospital/admin view in Alerts)
-router.get("/:id/donors", verifyToken, requireRole(["hospital", "admin"]), getRequestDonors);
+router.get("/:id/donors", verifyToken, requireRole(["hospital", "admin"]), asyncHandler(getRequestDonors));
 
 // GET single request — any authenticated user
-router.get("/:id", verifyToken, getRequestById);
+router.get("/:id", verifyToken, asyncHandler(getRequestById));
 
 // PUT update request status — hospital or admin
-router.put("/:id/status", verifyToken, requireRole(["hospital", "admin"]), updateRequestStatus);
+router.put("/:id/status", verifyToken, requireRole(["hospital", "admin"]), asyncHandler(updateRequestStatus));
 
 // POST donor responds to a request
-router.post("/:id/respond", verifyToken, requireRole(["donor"]), respondToRequest);
+router.post("/:id/respond", verifyToken, requireRole(["donor"]), asyncHandler(respondToRequest));
 
 // Error handler
 router.use((err, req, res, next) => {

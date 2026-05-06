@@ -9,17 +9,18 @@ import {
 } from "../controllers/adminController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 const router = Router();
 
 router.use(verifyToken, requireRole("admin"));
 
-router.get("/users", getAllUsers);
-router.put("/hospitals/:id/approve", approveHospital);
-router.delete("/hospitals/:id/reject", rejectHospital);
-router.delete("/users/:id", deleteUser);
-router.get("/stats", getStats);
-router.post("/broadcast", broadcastMessage);
+router.get("/users", asyncHandler(getAllUsers));
+router.put("/hospitals/:id/approve", asyncHandler(approveHospital));
+router.delete("/hospitals/:id/reject", asyncHandler(rejectHospital));
+router.delete("/users/:id", asyncHandler(deleteUser));
+router.get("/stats", asyncHandler(getStats));
+router.post("/broadcast", asyncHandler(broadcastMessage));
 
 // Admin routes error handler
 router.use((err, req, res, next) => {

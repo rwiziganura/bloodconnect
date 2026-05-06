@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 
 export async function getPublicDonorsMap(req, res) {
+  let connection;
   try {
     const onlyAvail = req.query.available !== "0";
     let sql = `SELECT d.id, d.blood_type, d.city, d.location_lat, d.location_lng, d.is_available, u.name
@@ -11,43 +12,58 @@ export async function getPublicDonorsMap(req, res) {
     if (onlyAvail) {
       sql += " AND d.is_available = 1";
     }
-    const [rows] = await pool.query(sql, params);
+
+    connection = await pool.getConnection();
+    const [rows] = await connection.query(sql, params);
     res.json({ donors: rows });
   } catch (err) {
-    console.error("getPublicDonorsMap:", err);
-    res.status(500).json({ error: "Could not load donor locations" });
+    console.error("❌ GET PUBLIC DONORS MAP ERROR:");
+    console.error("  Message:", err.message);
+    console.error("  Code:", err.code);
+    console.error("  Stack:", err.stack);
+    res.status(500).json({ 
+      error: "Could not load donor locations",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
 export async function getPublicStats(req, res) {
+  let connection;
   try {
-    const [availableResult] = await pool.query(
+    connection = await pool.getConnection();
+
+    const [availableResult] = await connection.query(
       "SELECT COUNT(*) AS c FROM donors WHERE is_available = 1"
     );
     const availableDonors = availableResult[0]?.c || 0;
 
-    const [registeredResult] = await pool.query(
+    const [registeredResult] = await connection.query(
       "SELECT COUNT(*) AS c FROM donors"
     );
     const totalDonorsRegistered = registeredResult[0]?.c || 0;
 
-    const [hospitalsResult] = await pool.query(
+    const [hospitalsResult] = await connection.query(
       "SELECT COUNT(*) AS c FROM hospitals"
     );
     const hospitalsCount = hospitalsResult[0]?.c || 0;
 
-    const [fulfilledResult] = await pool.query(
+    const [fulfilledResult] = await connection.query(
       "SELECT COUNT(*) AS c FROM blood_requests WHERE status = 'fulfilled'"
     );
     const fulfilledRequests = fulfilledResult[0]?.c || 0;
 
-    const [citiesResult] = await pool.query(
+    const [citiesResult] = await connection.query(
       `SELECT COUNT(DISTINCT TRIM(city)) AS c FROM donors
        WHERE city IS NOT NULL AND TRIM(city) <> ''`
     );
     const citiesCovered = citiesResult[0]?.c || 0;
 
-    const [donorsByBloodType] = await pool.query(
+    const [donorsByBloodType] = await connection.query(
       `SELECT d.blood_type AS blood_type, COUNT(*) AS count
        FROM donors d
        WHERE d.is_available = 1
@@ -64,14 +80,27 @@ export async function getPublicStats(req, res) {
       donorsByBloodType: donorsByBloodType || [],
     });
   } catch (err) {
-    console.error("❌ getPublicStats ERROR:", err.message, err);
-    res.status(500).json({ error: "Could not load stats", details: err.message });
+    console.error("❌ GET PUBLIC STATS ERROR:");
+    console.error("  Message:", err.message);
+    console.error("  Code:", err.code);
+    console.error("  Stack:", err.stack);
+    res.status(500).json({ 
+      error: "Could not load stats",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
 export async function getRecentRequestsPublic(req, res) {
+  let connection;
   try {
-    const [rows] = await pool.query(
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.query(
       `SELECT br.blood_type, br.urgency, br.created_at, br.quantity_units,
               h.hospital_name, h.city
        FROM blood_requests br
@@ -82,7 +111,17 @@ export async function getRecentRequestsPublic(req, res) {
     );
     res.json({ items: rows });
   } catch (err) {
-    console.error("getRecentRequestsPublic:", err);
-    res.status(500).json({ error: "Could not load feed" });
+    console.error("❌ GET RECENT REQUESTS ERROR:");
+    console.error("  Message:", err.message);
+    console.error("  Code:", err.code);
+    console.error("  Stack:", err.stack);
+    res.status(500).json({ 
+      error: "Could not load feed",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }

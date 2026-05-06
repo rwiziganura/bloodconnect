@@ -1,12 +1,15 @@
 import pool from "../config/db.js";
 
 export async function getHospitalProfile(req, res) {
+  let connection;
   try {
     if (!req.user?.id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    let [rows] = await pool.query(
+    connection = await pool.getConnection();
+
+    let [rows] = await connection.query(
       `SELECT h.id, h.user_id, h.hospital_name, h.city, h.address, h.location_lat, h.location_lng,
               h.is_approved, u.name AS contact_name, u.email AS contact_email, u.phone AS contact_phone
        FROM hospitals h
@@ -17,12 +20,12 @@ export async function getHospitalProfile(req, res) {
 
     if (rows.length === 0) {
       // Auto-create a hospital row for this user
-      const [[u]] = await pool.query("SELECT name FROM users WHERE id = ?", [req.user.id]);
+      const [[u]] = await connection.query("SELECT name FROM users WHERE id = ?", [req.user.id]);
       const defaultName = u?.name ? `${u.name} Hospital` : "Hospital";
 
       // Try INSERT with address column first; fall back to without it
       try {
-        await pool.query(
+        await connection.query(
           `INSERT INTO hospitals (user_id, hospital_name, city, address, is_approved)
            VALUES (?, ?, 'Not set', NULL, 0)`,
           [req.user.id, defaultName]
@@ -30,7 +33,7 @@ export async function getHospitalProfile(req, res) {
       } catch (insertErr) {
         if (insertErr.code === "ER_BAD_FIELD_ERROR") {
           // address column doesn't exist yet — insert without it
-          await pool.query(
+          await connection.query(
             `INSERT INTO hospitals (user_id, hospital_name, city, is_approved)
              VALUES (?, ?, 'Not set', 0)`,
             [req.user.id, defaultName]
@@ -40,7 +43,7 @@ export async function getHospitalProfile(req, res) {
         }
       }
 
-      [rows] = await pool.query(
+      [rows] = await connection.query(
         `SELECT h.id, h.user_id, h.hospital_name, h.city,
                 h.location_lat, h.location_lng, h.is_approved,
                 u.name AS contact_name, u.email AS contact_email, u.phone AS contact_phone
@@ -53,16 +56,33 @@ export async function getHospitalProfile(req, res) {
 
     res.json({ hospital: rows[0] });
   } catch (err) {
-    console.error("getHospitalProfile:", err.message, err.code);
-    res.status(500).json({ error: "Could not load hospital profile", details: err.message });
+    console.error("❌ GET HOSPITAL PROFILE ERROR:");
+    console.error("  Message:", err.message);
+    console.error("  Code:", err.code);
+    console.error("  Stack:", err.stack);
+    res.status(500).json({ 
+      error: "Could not load hospital profile",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }
 
 export async function updateHospitalProfile(req, res) {
+  let connection;
   try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
     const { hospital_name, city, address, location_lat, location_lng } = req.body;
 
-    const [[existing]] = await pool.query(
+    connection = await pool.getConnection();
+
+    const [[existing]] = await connection.query(
       "SELECT id FROM hospitals WHERE user_id = ?",
       [req.user.id]
     );
@@ -118,12 +138,12 @@ export async function updateHospitalProfile(req, res) {
     }
 
     params.push(req.user.id);
-    await pool.query(
+    await connection.query(
       `UPDATE hospitals SET ${updates.join(", ")} WHERE user_id = ?`,
       params
     );
 
-    const [[hospital]] = await pool.query(
+    const [[hospital]] = await connection.query(
       `SELECT h.id, h.user_id, h.hospital_name, h.city, h.address, h.location_lat, h.location_lng,
               h.is_approved, u.name AS contact_name, u.email AS contact_email, u.phone AS contact_phone
        FROM hospitals h
@@ -134,7 +154,17 @@ export async function updateHospitalProfile(req, res) {
 
     res.json({ hospital });
   } catch (err) {
-    console.error("updateHospitalProfile:", err);
-    res.status(500).json({ error: "Could not update hospital profile" });
+    console.error("❌ UPDATE HOSPITAL PROFILE ERROR:");
+    console.error("  Message:", err.message);
+    console.error("  Code:", err.code);
+    console.error("  Stack:", err.stack);
+    res.status(500).json({ 
+      error: "Could not update hospital profile",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 }

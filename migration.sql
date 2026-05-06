@@ -48,9 +48,9 @@ ALTER TABLE blood_requests
   ADD COLUMN IF NOT EXISTS contact_phone VARCHAR(20) NULL
     AFTER patient_name;
 
--- -------------------------------------------------------
--- notifications: add is_read and request_id columns
--- -------------------------------------------------------
+ALTER TABLE notifications
+  MODIFY COLUMN type ENUM('sms','email','both','info','blood_request') NOT NULL DEFAULT 'both';
+
 ALTER TABLE notifications
   ADD COLUMN IF NOT EXISTS is_read BOOLEAN NOT NULL DEFAULT FALSE
     AFTER status;
@@ -58,3 +58,21 @@ ALTER TABLE notifications
 ALTER TABLE notifications
   ADD COLUMN IF NOT EXISTS request_id INT UNSIGNED NULL
     AFTER is_read;
+
+-- -------------------------------------------------------
+-- donor_responses: add extra columns used by the app
+-- -------------------------------------------------------
+ALTER TABLE donor_responses
+  ADD COLUMN IF NOT EXISTS donor_weight DECIMAL(5,2) NULL AFTER responded_at;
+
+ALTER TABLE donor_responses
+  ADD COLUMN IF NOT EXISTS donor_age INT NULL AFTER donor_weight;
+
+ALTER TABLE donor_responses
+  ADD COLUMN IF NOT EXISTS donor_email VARCHAR(255) NULL AFTER donor_age;
+
+ALTER TABLE donor_responses
+  ADD COLUMN IF NOT EXISTS donor_phone VARCHAR(32) NULL AFTER donor_email;
+
+ALTER TABLE donor_responses
+  ADD COLUMN IF NOT EXISTS medical_conditions TEXT NULL AFTER donor_phone;
