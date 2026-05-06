@@ -1,0 +1,48 @@
+import express from 'express';
+import * as donorAcceptanceController from '../controllers/donorAcceptanceController.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
+import { requireRole } from '../middleware/roleMiddleware.js';
+
+const router = express.Router();
+
+// Public route - anyone can submit acceptance
+router.post('/accept', donorAcceptanceController.submitDonorAcceptance);
+
+// Hospital routes
+router.get(
+  '/hospital/acceptances',
+  verifyToken,
+  requireRole('hospital'),
+  donorAcceptanceController.getHospitalDonorAcceptances
+);
+
+router.get(
+  '/hospital/request/:request_id/acceptances',
+  verifyToken,
+  requireRole('hospital'),
+  donorAcceptanceController.getRequestDonorAcceptances
+);
+
+router.put(
+  '/hospital/approve/:id',
+  verifyToken,
+  requireRole('hospital'),
+  donorAcceptanceController.approveDonorAcceptance
+);
+
+router.put(
+  '/hospital/reject/:id',
+  verifyToken,
+  requireRole('hospital'),
+  donorAcceptanceController.rejectDonorAcceptance
+);
+
+// Donor routes
+router.get(
+  '/donor/my-acceptances',
+  verifyToken,
+  requireRole('donor'),
+  donorAcceptanceController.getDonorOwnAcceptances
+);
+
+export default router;

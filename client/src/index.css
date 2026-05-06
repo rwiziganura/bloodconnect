@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply transition-colors duration-theme ease-out;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply min-h-screen bg-bgLight text-slate-900 antialiased transition-colors duration-theme dark:bg-bgDark dark:text-[#F5F5F5];
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/20 bg-white/70 shadow-glass backdrop-blur-xl transition-all duration-theme dark:border-white/10 dark:bg-cardDark/75 dark:shadow-glass-dark;
+  }
+  .glass-nav {
+    @apply border-b border-white/10 bg-white/80 shadow-sm backdrop-blur-xl transition-all duration-theme dark:border-red-900/20 dark:bg-surfaceDark/85 dark:shadow-[0_4px_30px_rgba(230,57,70,0.12)];
+  }
+  .nav-link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full;
+  }
+  .btn-primary {
+    @apply rounded-xl bg-gradient-to-r from-primary to-primaryDark px-6 py-3 font-semibold text-white shadow-glow-red transition-all duration-200 hover:scale-[1.03] hover:shadow-glow-red-lg active:scale-[0.97];
+  }
+  .btn-outline {
+    @apply rounded-xl border-2 border-white/90 px-6 py-3 font-semibold text-white transition-all duration-200 hover:scale-[1.03] hover:bg-white/10 active:scale-[0.97] dark:border-white/30 dark:text-[#F5F5F5];
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-glow-red;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-xl bg-gradient-to-r from-cardLight via-white to-cardLight dark:from-cardDark dark:via-surfaceDark dark:to-cardDark;
+    background-size: 200% 100%;
+  }
+}
+
+.blood-pin.leaflet-div-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  @apply bg-primary/90 text-white font-bold;
+}
+
+.leaflet-popup-content-wrapper {
+  @apply rounded-xl dark:bg-cardDark dark:text-[#F5F5F5];
+}
+.leaflet-popup-tip {
+  @apply dark:bg-cardDark;
+}
