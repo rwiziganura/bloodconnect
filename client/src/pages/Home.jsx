@@ -79,8 +79,8 @@ export default function Home() {
     (async () => {
       try {
         const [s, f] = await Promise.all([
-          api.get("/api/public/stats"),
-          api.get("/api/public/recent-requests"),
+          api.get("/public/stats"),
+          api.get("/public/recent-requests"),
         ]);
         if (!c) return;
         setStats(s.data);

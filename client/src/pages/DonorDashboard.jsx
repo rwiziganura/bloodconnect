@@ -55,9 +55,9 @@ export default function DonorDashboard() {
     setLoading(true);
     try {
       const [d, a, h] = await Promise.all([
-        api.get("/api/donors/me/dashboard"),
-        api.get("/api/donors/me/alerts"),
-        api.get(`/api/donors/me/history?page=${page}`),
+        api.get("/donors/me/dashboard"),
+        api.get("/donors/me/alerts"),
+        api.get(`/donors/me/history?page=${page}`),
       ]);
       setDash(d.data);
       setAlerts(a.data.alerts || []);
@@ -74,9 +74,9 @@ export default function DonorDashboard() {
   async function setAvailable(on) {
     setAvailLoading(true);
     try {
-      await api.patch("/api/donors/me/availability", { is_available: on });
+      await api.patch("/donors/me/availability", { is_available: on });
       toast.success(on ? "You are now available" : "Marked unavailable");
-      const { data } = await api.get("/api/donors/me/dashboard");
+      const { data } = await api.get("/donors/me/dashboard");
       setDash(data);
     } catch {
       toast.error("Could not update availability");
@@ -87,7 +87,7 @@ export default function DonorDashboard() {
 
   async function respond(requestId, status) {
     try {
-      await api.post(`/api/requests/${requestId}/respond`, { status });
+      await api.post(`/requests/${requestId}/respond`, { status });
       toast.success(status === "accepted" ? "Thank you for helping!" : "Response recorded");
       load();
     } catch (err) {

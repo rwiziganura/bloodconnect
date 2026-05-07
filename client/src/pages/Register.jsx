@@ -127,7 +127,7 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      const response = await api.post("/api/auth/register", payload);
+      const response = await api.post("/auth/register", payload);
       const { user: newUser, token } = response.data;
       login(newUser, token);
       toast.success("Account created!");
