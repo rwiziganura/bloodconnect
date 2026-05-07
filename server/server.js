@@ -38,7 +38,7 @@ const allowedOrigins = [
   'https://bloodconnect.vercel.app',
 
   // Current Vercel frontend
-  'https://bloodconnect-mu.vercel.app',
+  'https://bloodconnect-lac.vercel.app',
 
   // Optional extra frontend
   'https://bloodconnect-frontend.vercel.app',
