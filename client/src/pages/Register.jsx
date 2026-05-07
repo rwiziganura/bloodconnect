@@ -127,13 +127,22 @@ export default function Register() {
 
     setSubmitting(true);
     try {
+      console.log('🚀 Submitting registration:', payload);
       const response = await api.post("/auth/register", payload);
+      console.log('✅ Registration response:', response.data);
       const { user: newUser, token } = response.data;
+      console.log('👤 User:', newUser);
+      console.log('🔑 Token:', token);
       login(newUser, token);
+      console.log('✅ Login context updated');
       toast.success("Account created!");
-      navigate(dashboardPath(newUser.role), { replace: true });
+      const path = dashboardPath(newUser.role);
+      console.log('🔀 Navigating to:', path);
+      navigate(path, { replace: true });
     } catch (err) {
-      console.error("Register error:", err);
+      console.error("❌ Register error:", err);
+      console.error("❌ Response:", err.response);
+      console.error("❌ Data:", err.response?.data);
       toast.error(err.response?.data?.error || "Could not register");
     } finally {
       setSubmitting(false);
