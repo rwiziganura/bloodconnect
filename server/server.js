@@ -26,37 +26,77 @@ process.on('unhandledRejection', (reason) => {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration - Allow production and development origins
+// ✅ TRUST PROXY (important for Render/Vercel)
+app.set('trust proxy', 1);
+
+// ✅ Production + Development CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://bloodconnect.vercel.app',
-  'https://bloodconnect-frontend.vercel.app', // Add your actual Vercel URL
-  process.env.FRONTEND_URL, // Allow dynamic frontend URL from env
-].filter(Boolean); // Remove undefined values
 
-app.use(cors({
+  // Old Vercel URL
+  'https://bloodconnect.vercel.app',
+
+  // Current Vercel frontend
+  'https://bloodconnect-mu.vercel.app',
+
+  // Optional extra frontend
+  'https://bloodconnect-frontend.vercel.app',
+
+  // Dynamic frontend URL from env
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+console.log('🌐 Allowed Origins:', allowedOrigins);
+
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    // Allow requests with no origin
+    // (mobile apps, Postman, curl, server-to-server)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check allowed origins
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('⚠️  Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.log(`❌ CORS BLOCKED: ${origin}`);
+
+      callback(new Error(
+        `CORS blocked for origin: ${origin}`
+      ));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization',
-    'X-Requested-With',
-    'Accept'
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'PATCH',
+    'OPTIONS'
   ],
+
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization'
+  ],
+
   credentials: true,
+
   optionsSuccessStatus: 200
-}));
+};
+
+// ✅ Apply CORS
+app.use(cors(corsOptions));
+
+// ✅ Handle preflight requests
+app.options(/.*/, cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
