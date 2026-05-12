@@ -22,7 +22,7 @@ export default function DonorProfile() {
   });
 
   useEffect(() => {
-    api.get('/api/donors/profile/me')
+    api.get('/donors/profile/me')
       .then(({ data }) => {
         const d = data.donor;
         setForm({
@@ -43,7 +43,7 @@ export default function DonorProfile() {
     setSaving(true);
     setSuccess(false);
     try {
-      await api.put('/api/donors/profile/me', form);
+      await api.put('/donors/profile/me', form);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -56,7 +56,7 @@ export default function DonorProfile() {
   const handleToggle = async () => {
     setToggling(true);
     try {
-      const { data } = await api.put('/api/donors/availability', {});
+      const { data } = await api.put('/donors/me/availability', {});
       setIsAvailable(data.is_available);
     } catch {
       alert('Failed to update availability');

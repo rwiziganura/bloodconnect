@@ -32,8 +32,8 @@ export default function HospitalDashboard() {
       setLoading(true);
       try {
         const [profileRes, reqRes] = await Promise.all([
-          api.get("/api/hospitals/me"),
-          api.get("/api/requests/hospital"),
+          api.get("/hospitals/me"),
+          api.get("/requests/hospital"),
         ]);
         if (!c) return;
         setHospital(profileRes.data.hospital);
@@ -68,7 +68,7 @@ export default function HospitalDashboard() {
     setUpdatingId(requestId);
     setError("");
     try {
-      const { data } = await api.put(`/api/requests/${requestId}/status`, {
+      const { data } = await api.put(`/requests/${requestId}/status`, {
         status,
       });
       setRequests((prev) =>
@@ -85,7 +85,7 @@ export default function HospitalDashboard() {
   async function openModal(r) {
     setModalReq(r);
     try {
-      const { data } = await api.get(`/api/requests/${r.id}/responses`);
+      const { data } = await api.get(`/requests/${r.id}/responses`);
       setModalDonors(data.donors || []);
     } catch {
       setModalDonors([]);

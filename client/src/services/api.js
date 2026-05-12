@@ -1,34 +1,18 @@
 import axios from 'axios';
 
-// Use environment variable for API base URL
-// Falls back to local development if not set
-const baseURL = import.meta.env.VITE_API_URL || '/api';
-
-console.log('🔗 API Base URL:', baseURL);
-
 const api = axios.create({
-  baseURL: baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false, // Set to true if using cookies
+  baseURL: '/api',
+  timeout: 30000,
 });
 
-// Attach token to every request automatically
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('bloodconnect_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('bloodconnect_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// If token expires, redirect to login
 api.interceptors.response.use(
   (response) => response,
   (error) => {

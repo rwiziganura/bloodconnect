@@ -33,7 +33,7 @@ function HospitalAlertView({ requestId }) {
         const token = localStorage.getItem('bloodconnect_token');
         
         const response = await api.get(
-          `/api/requests/${requestId}/donors`
+          `/requests/${requestId}/donors`
         );
         
         console.log('All donors response:', response.data);
@@ -226,7 +226,7 @@ export default function DonorAlerts() {
   };
 
   useEffect(() => {
-    api.get('/api/notifications')
+    api.get('/notifications')
       .then(({ data }) => {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
@@ -246,8 +246,8 @@ export default function DonorAlerts() {
     }
     setResponding(prev => ({ ...prev, [notificationId]: true }));
     try {
-      await api.put(`/api/notifications/${notificationId}/read`);
-      await api.post(`/api/requests/${requestId}/respond`, { status: responseStatus });
+      await api.put(`/notifications/${notificationId}/read`);
+      await api.post(`/requests/${requestId}/respond`, { status: responseStatus });
       setNotifications(prev =>
         prev.map(n =>
           n.id === notificationId
@@ -304,12 +304,12 @@ export default function DonorAlerts() {
 
     try {
       await api.put(
-        `/api/notifications/${notification.id}/read`,
+        `/notifications/${notification.id}/read`,
         {}
       );
 
       await api.post(
-        `/api/requests/${notification.request_id}/respond`,
+        `/requests/${notification.request_id}/respond`,
         {
           status: 'accepted',
           donor_weight: healthForm.weight,
@@ -353,7 +353,7 @@ export default function DonorAlerts() {
   };
 
   const handleMarkAllRead = async () => {
-    await api.put('/api/notifications/mark-all-read').catch(() => {});
+    await api.put('/notifications/mark-all-read').catch(() => {});
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     setUnreadCount(0);
   };

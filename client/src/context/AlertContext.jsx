@@ -11,7 +11,7 @@ export const AlertProvider = ({ children }) => {
   const fetchUnreadCount = useCallback(async () => {
     if (!token || !user) return;
     try {
-      const { data } = await api.get('/api/notifications/unread-count');
+      const { data } = await api.get('/notifications/unread-count');
       setUnreadCount(Number(data.count) || 0);
     } catch {
       // silently ignore — badge just won't update

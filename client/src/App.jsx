@@ -28,9 +28,11 @@ export default function App() {
       <Route path="/login"    element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
 
-      {/* Shared authenticated pages */}
+      {/* Shared authenticated pages - Hospital and Admin only */}
       <Route path="/map" element={
-        <DL><DonorMap /></DL>
+        <ProtectedRoute allowedRoles={['hospital','admin']}>
+          <DL><DonorMap /></DL>
+        </ProtectedRoute>
       } />
 
       <Route path="/requests" element={
@@ -55,12 +57,6 @@ export default function App() {
       <Route path="/donor/profile" element={
         <ProtectedRoute allowedRoles={['donor']}>
           <DL><DonorProfile /></DL>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/request-blood" element={
-        <ProtectedRoute allowedRoles={['donor']}>
-          <DL><RequestBlood /></DL>
         </ProtectedRoute>
       } />
 

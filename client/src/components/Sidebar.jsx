@@ -8,8 +8,6 @@ const LINKS = {
     { to: '/donor/dashboard', label: 'Dashboard' },
     { to: '/donor/alerts', label: 'Alerts' },
     { to: '/donor/profile', label: 'My Profile' },
-    { to: '/map', label: 'Donors Map' },
-    { to: '/request-blood', label: 'Request Blood' },
   ],
   hospital: [
     { to: '/hospital/dashboard', label: 'Dashboard' },
